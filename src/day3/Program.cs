@@ -21,33 +21,45 @@ namespace day3
         {
             using(var reader = new InputReader("input.txt"))
             {
-                int[,] fabric = new int[MIN_SIZE, MIN_SIZE];
+                string[,] fabric = new string[MIN_SIZE, MIN_SIZE];
 
                 int overlaps = 0;
+                HashSet<string> claimsWithNoOverlaps = new HashSet<string>();
                 foreach (var claim in reader.GetLines())
                 {
                     string[] claimSplit = claim.Split('@');
 
                     string[] claimInfoSplit = claimSplit[CLAIM_INFO].Split(':');
+                    string claimId = claimSplit[CLAIM_ID];
 
                     int[] coordsSplit = claimInfoSplit[COORDS].Split(',').Select(x => int.Parse(x)).ToArray();
                     int[] sizeSplit = claimInfoSplit[SIZE].Split('x').Select(x => int.Parse(x)).ToArray();
 
+                    int currentOverlaps = overlaps;
                     for (int y = 0; y < sizeSplit[HEIGHT]; y++)
                     {
                         for (int x = 0; x < sizeSplit[WIDTH]; x++)
                         {
-                            if(++fabric[coordsSplit[ROW] + y, coordsSplit[COL] + x] == 2)
+                            string overlappingClaim = fabric[coordsSplit[ROW] + y, coordsSplit[COL] + x];
+                            if(overlappingClaim == null)
                             {
+                                fabric[coordsSplit[ROW] + y, coordsSplit[COL] + x] = claimId;
+                            }
+                            else
+                            {
+                                claimsWithNoOverlaps.Remove(overlappingClaim);
                                 overlaps++;
                             }
                         }
                     }
+
+                    if(currentOverlaps == overlaps) claimsWithNoOverlaps.Add(claimId);
                 }
 
                 //fabric.Display();
 
                 Console.WriteLine("Part1: {0}", overlaps);
+                Console.WriteLine("Part2: {0}", claimsWithNoOverlaps.FirstOrDefault());
             }
         }
     }

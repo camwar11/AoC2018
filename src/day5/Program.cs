@@ -11,23 +11,44 @@ namespace day5
         {
             using(var reader = new InputReader("input.txt"))
             {
-                string polymer = reader.GetNextLine();
+                string polymer = reader.GetNextLine();                
 
-                Stack<char> result = new Stack<char>();
+                HashSet<char> usedChars = new HashSet<char>();
+                int smallestPolymer = int.MaxValue; 
+                char problemChar = char.MinValue;
+                char removedChar = default(char);
 
-                foreach (char nextChar in polymer)
+                while(true)
                 {
-                    char prev;
-                    if(!result.TryPeek(out prev) || !AreOppositePolarity(prev, nextChar))
+                    Stack<char> result = new Stack<char>();
+                    foreach (char nextChar in polymer.Where(x => char.ToLower(x) != removedChar))
                     {
-                        result.Push(nextChar);
-                        continue;
+                        char prev;
+                        if(!result.TryPeek(out prev) || !AreOppositePolarity(prev, nextChar))
+                        {
+                            result.Push(nextChar);
+                            continue;
+                        }
+
+                        result.Pop();
                     }
 
-                    result.Pop();
-                }
+                    if(problemChar == char.MinValue) Console.WriteLine("Part1: {0}", result.Count);
 
-                Console.WriteLine("Part1: {0}", result.Count);
+                    if(smallestPolymer > result.Count)
+                    {
+                        smallestPolymer = result.Count;
+                        problemChar = removedChar;
+                    }
+
+                    var unusedChar = result.FirstOrDefault(x => !usedChars.Contains(char.ToLower(x)));
+
+                    if(unusedChar == default(char)) break;
+
+                    usedChars.Add(char.ToLower(unusedChar));
+                    removedChar = char.ToLower(unusedChar);
+                }
+                Console.WriteLine("Part2: {0}, {1}", problemChar, smallestPolymer);
             }
         }
 

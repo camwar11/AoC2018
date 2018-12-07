@@ -14,6 +14,8 @@ namespace day6
             int left = int.MaxValue;
             int bottom = int.MinValue;
             int right = int.MinValue;
+            const int PART_TWO_MAX_DIST = 10000;
+            int part2Size = 0;
             using(var reader = new InputReader("input.txt"))
             {
                 foreach (string line in reader.GetLines())
@@ -33,7 +35,7 @@ namespace day6
             for (int y = top; y <= bottom; y++)
             {
                 // Assume infinites if they hit the outside of the box of coordinates
-                Console.Write("\n");
+                //Console.Write("\n");
                 bool isXInfinite = y == top || y == bottom;
                 for (int x = left; x <= right; x++)
                 {
@@ -42,9 +44,11 @@ namespace day6
                     int closestDistance = int.MaxValue;
                     // Probably a better way than brute forcing all the points...
                     // but let's just do this for now.
+                    int totalPointDistance = 0;
                     foreach (var point in points)
                     {
                         int distance = Distance(point, x, y);
+                        totalPointDistance += distance;
                         if(distance == closestDistance && closestPoint != point)
                         {
                             hasTie = true;
@@ -58,15 +62,17 @@ namespace day6
                         }
                     }
 
+                    if(totalPointDistance < PART_TWO_MAX_DIST) part2Size++;
+
                     if(hasTie) 
                     {
-                        Console.Write(".");
+                        //Console.Write(".");
                         continue;
                     }
 
                     if(closestPoint != null)
                     {
-                        Console.Write(closestPoint.Id);
+                        //Console.Write(closestPoint.Id);
 
                         if(isXInfinite || x == left || x == right)
                         {
@@ -83,6 +89,7 @@ namespace day6
             var largestPoint = points.Last();
 
             Console.WriteLine("Part 1: id={0}, area={1}", largestPoint.Id, largestPoint.Area );
+            Console.WriteLine("Part 2: {0}", part2Size);
         }
 
         private class PointComparer : IComparer<Point>

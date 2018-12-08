@@ -9,7 +9,8 @@ namespace day8
     {
         static void Main(string[] args)
         {
-            Node currentNode = null;
+            Tree<int, LicenseFileData> tree = new Tree<int, LicenseFileData>();
+            Node<int, LicenseFileData> currentNode = null;
             using(var reader = new InputReader("input.txt"))
             {
                 string input = reader.GetNextLine();
@@ -22,25 +23,26 @@ namespace day8
                     string item = inputItems[i];
                     if(currentNode == null)
                     {
-                        currentNode = new Node(item);
+                        currentNode = tree.CreateNode(null);
+                        currentNode.Data = new LicenseFileData(tree, currentNode, item);
                         continue;
                     }
 
-                    if(currentNode.NeedsMetadataHeader)
+                    if(currentNode.Data.NeedsMetadataHeader)
                     {
-                        currentNode.SetMetadata(item);
+                        currentNode.Data.SetMetadata(item);
                         continue;
                     }
 
-                    if(currentNode.NeedsChildren)
+                    if(currentNode.Data.NeedsChildren)
                     {
-                        currentNode = currentNode.AddChild(item);
+                        currentNode = currentNode.Data.AddChild(item);
                         continue;
                     }
 
-                    if(currentNode.NeedsMetadata)
+                    if(currentNode.Data.NeedsMetadata)
                     {
-                        currentNode.AddMetadata(item);
+                        currentNode.Data.AddMetadata(item);
                         continue;
                     }
 
@@ -50,33 +52,31 @@ namespace day8
                 }
             }
 
-            Console.WriteLine("Part 1: {0}", currentNode.CountMetadata());
-            Console.WriteLine("Part 2: {0}", currentNode.GetNodeValue());
+            Console.WriteLine("Part 1: {0}", currentNode.Data.CountMetadata());
+            Console.WriteLine("Part 2: {0}", currentNode.Data.GetNodeValue());
         }
 
-        private class Node
+        private class LicenseFileData
         {
-            private static int nextId = 0;
-            internal int ID;
-            private List<Node> Children = new List<Node>();
-            private List<int> Metadata = new List<int>();
-
             internal int RemainingChildren;
             internal int RemainingMetadata;
 
+            internal List<int> Data = new List<int>();
+
             internal void AddMetadata(string metadata)
             {
-                Metadata.Add(int.Parse(metadata));
+                Data.Add(int.Parse(metadata));
                 RemainingMetadata--;
             }
 
-            internal Node AddChild(string childNumOfChildren)
+            internal Node<int, LicenseFileData> AddChild(string childNumOfChildren)
             {
-                Node newChild = new Node(childNumOfChildren);
-                newChild.Parent = this;
-                Children.Add(newChild);
+                var newNode = _tree.CreateNode(null);
+                LicenseFileData data = new LicenseFileData(_tree, newNode, childNumOfChildren);
+                newNode.Data = data;
+                _node.AddChild(newNode);
                 RemainingChildren--;
-                return newChild;
+                return newNode;
             }
 
             public bool NeedsMetadata 
@@ -95,29 +95,32 @@ namespace day8
                 }   
             }
             public bool NeedsMetadataHeader { get; internal set; }
-            public Node Parent { get; private set; }
+            private Tree<int, LicenseFileData> _tree;           
+            private Node<int, LicenseFileData> _node; 
 
-            internal Node(string remainingChildren)
+            internal LicenseFileData(Tree<int, LicenseFileData> tree, Node<int, LicenseFileData> node, string remainingChildren)
             {
-                ID = nextId++;
+                _tree = tree;
+                _node = node;
                 RemainingChildren = int.Parse(remainingChildren);
                 NeedsMetadataHeader = true;
-                Parent = null;
+
+                _node.Data = this;
             }
 
             public int CountMetadata()
             {
-                return Metadata.Sum() + Children.Select(x => x.CountMetadata()).Sum();
+                return Data.Sum() + _node.Children.Select(x => x.Data.CountMetadata()).Sum();
             }
 
             public int GetNodeValue()
             {
-                if(!Children.Any()) return Metadata.Sum();
+                if(!_node.Children.Any()) return Data.Sum();
 
-                return Metadata.Select(x => {
+                return Data.Select(x => {
                     int idx = x-1;
-                    if(Children.Count <= idx) return 0;
-                    return Children[idx].GetNodeValue();
+                    if(_node.Children.Count() <= idx) return 0;
+                    return _node.Children.ElementAt(idx).Data.GetNodeValue();
                 }).Sum();
             }
 

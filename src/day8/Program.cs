@@ -51,6 +51,7 @@ namespace day8
             }
 
             Console.WriteLine("Part 1: {0}", currentNode.CountMetadata());
+            Console.WriteLine("Part 2: {0}", currentNode.GetNodeValue());
         }
 
         private class Node
@@ -107,6 +108,17 @@ namespace day8
             public int CountMetadata()
             {
                 return Metadata.Sum() + Children.Select(x => x.CountMetadata()).Sum();
+            }
+
+            public int GetNodeValue()
+            {
+                if(!Children.Any()) return Metadata.Sum();
+
+                return Metadata.Select(x => {
+                    int idx = x-1;
+                    if(Children.Count <= idx) return 0;
+                    return Children[idx].GetNodeValue();
+                }).Sum();
             }
 
             internal void SetMetadata(string item)

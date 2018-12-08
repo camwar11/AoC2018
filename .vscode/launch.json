@@ -6,84 +6,84 @@
    "configurations": [
 
         {
-            "name": "day1",
+            "name": "day1_18",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/day1/bin/Debug/netcoreapp2.1/day1.dll",
+            "program": "${workspaceFolder}/src/2018/day1/bin/Debug/netcoreapp2.1/day1.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/src/day1",
+            "cwd": "${workspaceFolder}/src/2018/day1",
             // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
             "console": "internalConsole",
             "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart"
         },
         {
-            "name": "day2",
+            "name": "day2_18",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/day2/bin/Debug/netcoreapp2.1/day2.dll",
+            "program": "${workspaceFolder}/src/2018/day2/bin/Debug/netcoreapp2.1/day2.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/src/day2",
+            "cwd": "${workspaceFolder}/src/2018/day2",
             // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
             "console": "internalConsole",
             "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart"
         },
         {
-            "name": "day3",
+            "name": "day3_18",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/day3/bin/Debug/netcoreapp2.1/day3.dll",
+            "program": "${workspaceFolder}/src/2018/day3/bin/Debug/netcoreapp2.1/day3.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/src/day3",
+            "cwd": "${workspaceFolder}/src/2018/day3",
             // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
             "console": "internalConsole",
             "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart"
         },
         {
-            "name": "day4",
+            "name": "day4_18",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/day4/bin/Debug/netcoreapp2.1/day4.dll",
+            "program": "${workspaceFolder}/src/2018/day4/bin/Debug/netcoreapp2.1/day4.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/src/day4",
+            "cwd": "${workspaceFolder}/src/2018/day4",
             // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
             "console": "internalConsole",
             "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart"
         },
         {
-            "name": "day5",
+            "name": "day5_18",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/day5/bin/Debug/netcoreapp2.1/day5.dll",
+            "program": "${workspaceFolder}/src/2018/day5/bin/Debug/netcoreapp2.1/day5.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/src/day5",
+            "cwd": "${workspaceFolder}/src/2018/day5",
             // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
             "console": "internalConsole",
             "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart"
         },
         {
-            "name": "day6",
+            "name": "day6_18",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/day6/bin/Debug/netcoreapp2.1/day6.dll",
+            "program": "${workspaceFolder}/src/2018/day6/bin/Debug/netcoreapp2.1/day6.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/src/day6",
+            "cwd": "${workspaceFolder}/src/2018/day6",
             // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
             "console": "internalConsole",
             "stopAtEntry": false,
@@ -91,28 +91,28 @@
         }
         ,
         {
-            "name": "day7",
+            "name": "day7_18",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/day7/bin/Debug/netcoreapp2.1/day7.dll",
+            "program": "${workspaceFolder}/src/2018/day7/bin/Debug/netcoreapp2.1/day7.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/src/day7",
+            "cwd": "${workspaceFolder}/src/2018/day7",
             // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
             "console": "internalConsole",
             "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart"
         },
         {
-            "name": "day8",
+            "name": "day8_18",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/day8/bin/Debug/netcoreapp2.1/day8.dll",
+            "program": "${workspaceFolder}/src/2018/day8/bin/Debug/netcoreapp2.1/day8.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/src/day8",
+            "cwd": "${workspaceFolder}/src/2018/day8",
             // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
             "console": "internalConsole",
             "stopAtEntry": false,

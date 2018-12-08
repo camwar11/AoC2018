@@ -9,7 +9,9 @@ namespace day5
     {
         static void Main(string[] args)
         {
-            using(var reader = new InputReader("input.txt"))
+            System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
+            using (var reader = new InputReader("input.txt"))
             {
                 string polymer = reader.GetNextLine();                
 
@@ -50,6 +52,8 @@ namespace day5
                 }
                 Console.WriteLine("Part2: {0}, {1}", problemChar, smallestPolymer);
             }
+
+            Console.WriteLine("Elapsed: {0}", stopwatch.Elapsed);
         }
 
         static bool AreOppositePolarity(char one, char two)

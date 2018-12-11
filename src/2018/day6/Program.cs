@@ -9,7 +9,7 @@ namespace day6
     {
         static void Main(string[] args)
         {
-            List<Point> points = new List<Point>();
+            List<AreaPoint> points = new List<AreaPoint>();
             int top = int.MaxValue;
             int left = int.MaxValue;
             int bottom = int.MinValue;
@@ -28,7 +28,7 @@ namespace day6
                     if(split[1] > bottom) bottom = split[1];
                     
                     
-                    points.Add(new Point(split[0], split[1]));
+                    points.Add(new AreaPoint(split[0], split[1]));
                 }
             }
 
@@ -39,7 +39,7 @@ namespace day6
                 bool isXInfinite = y == top || y == bottom;
                 for (int x = left; x <= right; x++)
                 {
-                    Point closestPoint = null;
+                    AreaPoint closestPoint = null;
                     bool hasTie = false;
                     int closestDistance = int.MaxValue;
                     // Probably a better way than brute forcing all the points...
@@ -47,7 +47,7 @@ namespace day6
                     int totalPointDistance = 0;
                     foreach (var point in points)
                     {
-                        int distance = Distance(point, x, y);
+                        int distance = point.ManhattenDistance(x, y);
                         totalPointDistance += distance;
                         if(distance == closestDistance && closestPoint != point)
                         {
@@ -92,9 +92,9 @@ namespace day6
             Console.WriteLine("Part 2: {0}", part2Size);
         }
 
-        private class PointComparer : IComparer<Point>
+        private class PointComparer : IComparer<AreaPoint>
         {
-            public int Compare(Point x, Point y)
+            public int Compare(AreaPoint x, AreaPoint y)
             {
                 if(x.Infinite && !y.Infinite) return -1;
                 if(!x.Infinite && y.Infinite) return 1;
@@ -103,40 +103,17 @@ namespace day6
             }
         }
 
-        private static int Distance(int x1, int x2, int y1, int y2)
+        private class AreaPoint : Point
         {
-            return Math.Abs(x1-x2) + Math.Abs(y1-y2);
-        }
-
-        private static int Distance(Point one, Point two)
-        {
-            return Distance(one.X, two.X, one.Y, two.Y);
-        }
-
-        private static int Distance(Point one, int x2, int y2)
-        {
-            return Distance(one.X, x2, one.Y, y2);
-        }
-
-        private class Point
-        {
-            public static int nextId = 0;
-            internal Point(string x, string y) : this(int.Parse(x), int.Parse(y))
+            internal AreaPoint(string x, string y) : this(int.Parse(x), int.Parse(y))
             {
             }
 
-            internal Point(int x, int y)
+            internal AreaPoint(int x, int y) : base(x, y)
             {
-                X = x;
-                Y = y;
-                Id = nextId++;
                 Infinite = false;
                 Area = 0;
             }
-            internal int X {get; private set;}
-            internal int Y {get; private set;}
-
-            internal int Id {get; private set;}
 
             internal bool Infinite {get; set;}
 

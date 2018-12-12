@@ -41,13 +41,13 @@ namespace day6
                 {
                     AreaPoint closestPoint = null;
                     bool hasTie = false;
-                    int closestDistance = int.MaxValue;
+                    long closestDistance = int.MaxValue;
                     // Probably a better way than brute forcing all the points...
                     // but let's just do this for now.
-                    int totalPointDistance = 0;
+                    long totalPointDistance = 0;
                     foreach (var point in points)
                     {
-                        int distance = point.ManhattenDistance(x, y);
+                        long distance = point.ManhattenDistance(x, y);
                         totalPointDistance += distance;
                         if(distance == closestDistance && closestPoint != point)
                         {

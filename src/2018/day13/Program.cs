@@ -42,25 +42,35 @@ namespace day13
 
             bool crash = false;
             int iteration = 0;
-            while(!crash)
+            while(cartsInOrder.Count > 1)
             {
                 List<Cart> cartsToProcess = cartsInOrder.ToList();
                 cartsInOrder = new SortedSet<Cart>();
-                grid.Print(iteration.ToString());
+                //grid.Print(iteration.ToString());
+                HashSet<Cart> crashedCarts = new HashSet<Cart>();
                 foreach (var cart in cartsToProcess)
-                {
-                    if(cart.Move(grid))
-                    {
-                        Console.WriteLine("Part 1: {0},{1}", cart.X, cart.Y);
-                        crash = true;
-                        break;
-                    }
+                {   
+                    if(crashedCarts.Contains(cart)) continue;
 
-                    cartsInOrder.Add(cart);
+                    Cart crashedCart;
+                    if(cart.Move(grid, out crashedCart))
+                    {
+                        if(!crash) Console.WriteLine("Part 1: {0},{1}", cart.X, cart.Y);
+                        crash = true;
+
+                        cartsInOrder.Remove(crashedCart);
+                        crashedCarts.Add(crashedCart);
+                    }
+                    else
+                    {
+                        cartsInOrder.Add(cart);
+                    }
                 }
 
                 iteration++;
             }
+
+            Console.WriteLine("Part 2: Iterations={0}, [{1},{2}]", iteration, cartsInOrder.First().X, cartsInOrder.First().Y);
         }
 
         private class Cart : Point, IComparable<Cart>
@@ -111,10 +121,10 @@ namespace day13
                 int yComp = this.Y.CompareTo(other.Y);
                 if(yComp != 0) return yComp;
 
-                return 1;
+                return Id.CompareTo(other.Id);
             }
 
-            public bool Move(Grid grid)
+            public bool Move(Grid grid, out Cart crashedCart)
             {
                 int xDelta = 0;
                 int yDelta = 0;
@@ -140,17 +150,21 @@ namespace day13
 
                 var track = grid[(int)X, (int)Y];
 
+                this._currentTrack.CurrentCart = null;
+
                 if(track.CurrentCart != null)
                 {
+                    crashedCart = track.CurrentCart;
+                    track.CurrentCart = null;
                     return true;
                 }
 
                 track.CurrentCart = this;
-                this._currentTrack.CurrentCart = null;
                 this._currentTrack = track;
 
                 PerformTurn();
 
+                crashedCart = null;
                 return false;
             }
 
@@ -244,7 +258,7 @@ namespace day13
         private class Track
         {
             public const char STRAIGHT_HORZ = '-';
-            public const char STRAIGHT_VERT = '-';
+            public const char STRAIGHT_VERT = '|';
             public const char CURVE_1 = '\\';
             public const char CURVE_2 = '/';
             public const char INTERSECTION = '+';

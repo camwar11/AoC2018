@@ -40,10 +40,6 @@ namespace day9
                             Console.WriteLine("Part 1: {0}", highScore);
                         }
 
-                        if(nextMarble == lastMarblePoints * 100)
-                        {
-                        }
-
                         if(nextMarble % 23 == 0)
                         {
                             //scoring

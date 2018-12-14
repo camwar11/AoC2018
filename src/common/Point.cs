@@ -15,10 +15,10 @@ namespace common
             Y = y;
             Id = nextId++;
         }
-        public long X {get; private set;}
-        public long Y {get; private set;}
+        public long X {get; protected set;}
+        public long Y {get; protected set;}
 
-        public long Id {get; private set;}
+        public long Id {get; protected set;}
 
         public static long ManhattenDistance(long x1, long x2, long y1, long y2)
         {

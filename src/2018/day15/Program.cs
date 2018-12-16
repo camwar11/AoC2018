@@ -9,31 +9,57 @@ namespace day15
     {
         static void Main(string[] args)
         {
-            List<string> lines;
-            using(var reader = new InputReader("test2.txt"))
+            List<Tuple<int, int, string>> tests = new List<Tuple<int, int, string>>();
+            tests.Add(new Tuple<int, int, string>(47, 590, "test1.txt"));
+            tests.Add(new Tuple<int, int, string>(37, 982, "test2.txt"));
+            tests.Add(new Tuple<int, int, string>(46, 859, "test3.txt"));
+            tests.Add(new Tuple<int, int, string>(35, 793, "test4.txt"));
+            tests.Add(new Tuple<int, int, string>(54, 536, "test5.txt"));
+            tests.Add(new Tuple<int, int, string>(20, 937, "test6.txt"));
+
+            foreach (var test in tests)
             {
-                lines = reader.GetLines().ToList();
+                List<string> lines;
+                using (var reader = new InputReader(test.Item3))
+                {
+                    lines = reader.GetLines().ToList();
+                }
+
+                bool print = test.Item3 == "test4.txt" || test.Item3 == "test5.txt";
+
+                int turn, hp;
+                RunCombat(lines, print, out turn, out hp);
+                Console.WriteLine("Part1: {0} full turns * {1} HP = {2}", turn, hp, turn * hp);
+                if(turn == test.Item1 && hp == test.Item2)
+                {
+                    Console.WriteLine("Test Passes: " + test.Item3);
+                }
+                else
+                {
+                    Console.WriteLine("Test Fails: {0}. Expect {1}*{2}, found {3}*{4}", test.Item3, test.Item1, test.Item2, turn, hp);
+                }
             }
-            
+        }
+
+        private static void RunCombat(List<string> lines, bool print, out int turn, out int hp)
+        {
             Board board = null;
             for (int y = 0; y < lines.Count; y++)
             {
                 var line = lines[y];
 
-                if(y == 0) board = new Board(line.Length, lines.Count);
+                if (y == 0) board = new Board(line.Length, lines.Count);
 
                 for (int x = 0; x < line.Length; x++)
                 {
-                    board[x,y] = new Unit(x,y, line[x]);
+                    board[x, y] = new Unit(x, y, line[x]);
                 }
             }
-            int turn = 0;
-            bool print = true;
+            turn = 0;
             for (; turn < 100000; turn++)
             {
-                
                 var units = board.GetUnitsInOrder(Unit.ELF, Unit.GOBLIN);
-                if(print)
+                if (print)
                 {
                     Console.WriteLine("Turn " + turn + "--------------------------");
                     board.Print();
@@ -43,21 +69,23 @@ namespace day15
                     }
                 }
 
+                var allPathLengths = board.GetAllShortestPathLengths();
+
                 bool noMoreEnemies = false;
                 foreach (var unit in units)
                 {
-                    if(unit.IsDead) continue;
+                    if (unit.IsDead) continue;
 
-                    if(unit.TakeTurn(board))
+                    if (unit.TakeTurn(board, allPathLengths))
                     {
                         noMoreEnemies = true;
                         break;
                     }
                 }
 
-                if(noMoreEnemies) break;
+                if (noMoreEnemies) break;
 
-                if(print)
+                if (print)
                 {
                     board.Print();
                     foreach (var unit in units)
@@ -67,8 +95,7 @@ namespace day15
                 }
             }
 
-            int hp = board.GetUnitsInOrder(Unit.ELF, Unit.GOBLIN).Sum(x => x.HitPoints);
-            Console.WriteLine("Part1: {0} full turns * {1} HP = {2}", turn, hp, turn*hp);
+            hp = board.GetUnitsInOrder(Unit.ELF, Unit.GOBLIN).Sum(x => x.HitPoints);
         }
 
         private class Unit : Point
@@ -147,7 +174,7 @@ namespace day15
                 return this.UnitType == ELF ? GOBLIN : ELF;
             }
 
-            internal bool TakeTurn(Board board)
+            internal bool TakeTurn(Board board, long[,,,] allPathLengths)
             {
                 var enemies = board.GetUnitsInOrder(GetEnemy());
                 if (!enemies.Any()) return true;
@@ -157,7 +184,9 @@ namespace day15
                     return false;
                 }
 
-                Unit closestSpace = FindNextClosestSpace(board, enemies);
+                //Unit closestSpace = FindNextClosestSpace(board, enemies);
+
+                Unit closestSpace = FindNextClosestSpaceDeux(board, enemies, allPathLengths);
 
                 if (closestSpace == null)
                 {
@@ -169,6 +198,31 @@ namespace day15
                 AttemptAttack(board);
 
                 return false;
+            }
+
+            private Unit FindNextClosestSpaceDeux(Board board, IEnumerable<Unit> enemies, long[,,,] allPathLengths)
+            {
+                long shortestLength = long.MaxValue;
+                Unit bestMove = null;
+                foreach (var possibleMove in board.GetSquaresAdjacentToUnit(this, Unit.EMPTY))
+                {
+                    foreach (var enemy in enemies)
+                    {
+                        foreach (var emptySpace in board.GetSquaresAdjacentToUnit(enemy, Unit.EMPTY))
+                        {
+                            var length = allPathLengths[possibleMove.X,possibleMove.Y,emptySpace.X,emptySpace.Y];
+
+                            if(length<shortestLength)
+                            {
+                                shortestLength = length;
+                                bestMove = possibleMove;
+                            }
+                        }
+                    }
+                }
+                
+
+                return bestMove;
             }
 
             private void MoveUnit(Board board, long x, long y)
@@ -226,6 +280,7 @@ namespace day15
         private class Board : Grid<Unit>
         {
             private static readonly EmptyGenerator _generator = (long x, long y) => new Unit(x, y, Unit.EMPTY);
+
             public Board(long width, long height) : base(width, height, _generator)
             {
             }

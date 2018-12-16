@@ -34,7 +34,7 @@ namespace common
             }
         }
 
-        public T this[long x, long y]
+        public virtual T this[long x, long y]
         {
             get
             {
@@ -86,6 +86,74 @@ namespace common
         public IEnumerable<ShortestPathResult> GetShortestPaths(T start, params T[] endingPoints)
         {
             return DijkstrasAlgorithm(start, endingPoints);
+        }
+
+        public long[,,,] GetAllShortestPathLengths()
+        {
+            return FloydWarshallAlgorithm();
+        }
+
+        private long[,,,] FloydWarshallAlgorithm()
+        {
+            long[,,,] distances = InitializeFWAlgorithm();
+
+            for (long kX = 0; kX < _width; kX++)
+            {
+                for (long kY = 0; kY < _height; kY++)
+                {
+                    for (long iX = 0; iX < _width; iX++)
+                    {
+                        for (long iY = 0; iY < _height; iY++)
+                        {
+                            for (long jX = 0; jX < _width; jX++)
+                            {
+                                for (long jY = 0; jY < _height; jY++)
+                                {
+                                    long distIToK = distances[iX,iY,kX,kY];
+                                    long distKToJ = distances[kX,kY,jX,jY];
+
+                                    // Don't evaluate "infinity" or we will overflow the long
+                                    if(long.MaxValue == distIToK || long.MaxValue == distKToJ) continue;
+
+                                    long distThruK = distIToK + distKToJ; 
+                                    if(distances[iX,iY,jX,jY] > distThruK)
+                                    {
+                                        distances[iX,iY,jX,jY] = distThruK;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return distances;
+        }
+
+        private long[,,,] InitializeFWAlgorithm()
+        {
+            long[,,,] distances = new long[_width, _height, _width, _height];
+            for (long x1 = 0; x1 < _width; x1++)
+            {
+                for (long y1 = 0; y1 < _height; y1++)
+                {
+                    for (long x2 = 0; x2 < _width; x2++)
+                    {
+                        for (long y2 = 0; y2 < _height; y2++)
+                        {
+                            long startingDistance = long.MaxValue;
+                            if (x1 == x2 && y1 == y2) startingDistance = 0;
+                            if (Point.ManhattenDistance(x1, x2, y1, y2) == 1)
+                            {
+                                startingDistance = this[x2, y2].Weight;
+                            }
+                            distances[x1, y1, x2, y2] = startingDistance;
+                        }
+                    }
+                }
+            }
+
+            return distances;
         }
 
         public class ShortestPathResult

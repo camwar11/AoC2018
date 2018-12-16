@@ -9,18 +9,23 @@ namespace day15
     {
         static void Main(string[] args)
         {
-            List<Tuple<int, int, string>> tests = new List<Tuple<int, int, string>>();
-            tests.Add(new Tuple<int, int, string>(47, 590, "test1.txt"));
-            tests.Add(new Tuple<int, int, string>(37, 982, "test2.txt"));
-            tests.Add(new Tuple<int, int, string>(46, 859, "test3.txt"));
-            tests.Add(new Tuple<int, int, string>(35, 793, "test4.txt"));
-            tests.Add(new Tuple<int, int, string>(54, 536, "test5.txt"));
-            tests.Add(new Tuple<int, int, string>(20, 937, "test6.txt"));
+            List<Tuple<int, int, bool, string>> tests = new List<Tuple<int, int, bool, string>>();
+            tests.Add(new Tuple<int, int, bool, string>(47, 590, false, "test1.txt"));
+            tests.Add(new Tuple<int, int, bool, string>(29, 172, true, "test1.txt"));
+            tests.Add(new Tuple<int, int, bool, string>(37, 982, false, "test2.txt"));
+            tests.Add(new Tuple<int, int, bool, string>(46, 859, false, "test3.txt"));
+            tests.Add(new Tuple<int, int, bool, string>(33, 948, true, "test3.txt"));
+            tests.Add(new Tuple<int, int, bool, string>(35, 793, false, "test4.txt"));
+            tests.Add(new Tuple<int, int, bool, string>(37, 94, true, "test4.txt"));
+            tests.Add(new Tuple<int, int, bool, string>(54, 536, false, "test5.txt"));
+            tests.Add(new Tuple<int, int, bool, string>(39, 166, true, "test5.txt"));
+            tests.Add(new Tuple<int, int, bool, string>(20, 937, false, "test6.txt"));
+            tests.Add(new Tuple<int, int, bool, string>(30, 38, true, "test6.txt"));
 
             foreach (var test in tests)
             {
                 List<string> lines;
-                using (var reader = new InputReader(test.Item3))
+                using (var reader = new InputReader(test.Item4))
                 {
                     lines = reader.GetLines().ToList();
                 }
@@ -28,15 +33,15 @@ namespace day15
                 bool print = false;//test.Item3 == "test4.txt" || test.Item3 == "test5.txt";
 
                 int turn, hp;
-                RunCombat(lines, print, out turn, out hp);
+                RunCombat(lines, false, test.Item3, out turn, out hp);
                 Console.WriteLine("Part1: {0} full turns * {1} HP = {2}", turn, hp, turn * hp);
                 if(turn == test.Item1 && hp == test.Item2)
                 {
-                    Console.WriteLine("Test Passes: " + test.Item3);
+                    Console.WriteLine("Test Passes: " + test.Item4);
                 }
                 else
                 {
-                    Console.WriteLine("Test Fails: {0}. Expect {1}*{2}, found {3}*{4}", test.Item3, test.Item1, test.Item2, turn, hp);
+                    Console.WriteLine("Test Fails: {0}. Expect {1}*{2}, found {3}*{4}", test.Item4, test.Item1, test.Item2, turn, hp);
                 }
             }
 
@@ -47,63 +52,105 @@ namespace day15
             }
 
             int realTurn, realHp;
-            RunCombat(realLines, false, out realTurn, out realHp);
+            RunCombat(realLines, false, false, out realTurn, out realHp);
             Console.WriteLine("Part1: {0} full turns * {1} HP = {2}", realTurn, realHp, realTurn * realHp);
+
+            RunCombat(realLines, false, true, out realTurn, out realHp);
+            Console.WriteLine("Part2: {0} full turns * {1} HP = {2}", realTurn, realHp, realTurn * realHp);
         }
 
-        private static void RunCombat(List<string> lines, bool print, out int turn, out int hp)
+        private static void RunCombat(List<string> lines, bool print, bool part2, out int turn, out int hp)
         {
-            Board board = null;
-            for (int y = 0; y < lines.Count; y++)
-            {
-                var line = lines[y];
+            bool firstRun = true;
+            int elfPower = 3;
+            if(part2) elfPower = 4;
 
-                if (y == 0) board = new Board(line.Length, lines.Count);
-
-                for (int x = 0; x < line.Length; x++)
-                {
-                    board[x, y] = new Unit(x, y, line[x]);
-                }
-            }
+            bool elfDied = true;
             turn = 0;
-            for (; turn < 100000; turn++)
+            hp = 0;
+
+            while(firstRun || (part2 && elfDied))
             {
-                var units = board.GetUnitsInOrder(Unit.ELF, Unit.GOBLIN);
-                if (print)
+                if(elfPower > 200) 
                 {
-                    Console.WriteLine("Turn " + turn + "--------------------------");
-                    board.Print();
+                    Console.WriteLine("No valid elf power found.");
+                    break;                    
+                }
+
+                Unit.ElfAttackPower = elfPower;
+                firstRun = false;
+                Board board = null;
+                int totalNumElves = 0;
+                for (int y = 0; y < lines.Count; y++)
+                {
+                    var line = lines[y];
+
+                    if (y == 0) board = new Board(line.Length, lines.Count);
+
+                    for (int x = 0; x < line.Length; x++)
+                    {
+                        if(line[x] == Unit.ELF) totalNumElves++;
+                        board[x, y] = new Unit(x, y, line[x]);
+                    }
+                }
+                turn = 0;
+                for (; turn < 100000; turn++)
+                {
+                    int turnNumElves = 0;
+                    var units = board.GetUnitsInOrder(Unit.ELF, Unit.GOBLIN);
+                    if (print)
+                    {
+                        Console.WriteLine("Turn " + turn + "--------------------------");
+                        board.Print();
+                        foreach (var unit in units)
+                        {
+                            Console.WriteLine("{0}[{2},{3}]: HP={1}", unit.UnitType, unit.HitPoints, unit.X, unit.Y);
+                        }
+                    }
+
+                    bool noMoreEnemies = false;
                     foreach (var unit in units)
                     {
-                        Console.WriteLine("{0}[{2},{3}]: HP={1}", unit.UnitType, unit.HitPoints, unit.X, unit.Y);
+                        if(unit.IsDead) continue;
+                        if(unit.UnitType == Unit.ELF) turnNumElves++;
+
+                        if (unit.TakeTurn(board))
+                        {
+                            // Elves won
+                            if(unit.UnitType == Unit.ELF) turnNumElves = totalNumElves;
+                            else turnNumElves = 0;
+                            noMoreEnemies = true;
+                            break;
+                        }
                     }
-                }
 
-                bool noMoreEnemies = false;
-                foreach (var unit in units)
-                {
-                    if (unit.IsDead) continue;
-
-                    if (unit.TakeTurn(board))
+                    if(totalNumElves > turnNumElves)
                     {
-                        noMoreEnemies = true;
-                        break;
+                        elfDied = true;
+                        if(part2) break;
                     }
-                }
-
-                if (noMoreEnemies) break;
-
-                if (print)
-                {
-                    board.Print();
-                    foreach (var unit in units)
+                    else
                     {
-                        Console.WriteLine("{0}[{2},{3}]: HP={1}", unit.UnitType, unit.HitPoints, unit.X, unit.Y);
+                        elfDied = false;
+                    }
+
+                    if (noMoreEnemies) break;
+
+                    if (print)
+                    {
+                        board.Print();
+                        foreach (var unit in units)
+                        {
+                            Console.WriteLine("{0}[{2},{3}]: HP={1}", unit.UnitType, unit.HitPoints, unit.X, unit.Y);
+                        }
                     }
                 }
+
+                elfPower += 1;//25;
+                Console.WriteLine("New elf power = "+elfPower);
+
+                hp = board.GetUnitsInOrder(Unit.ELF, Unit.GOBLIN).Sum(x => x.HitPoints);
             }
-
-            hp = board.GetUnitsInOrder(Unit.ELF, Unit.GOBLIN).Sum(x => x.HitPoints);
         }
 
         private class Unit : Point
@@ -131,6 +178,9 @@ namespace day15
                     _unitType = value;
                 }
             }
+
+            public static int ElfAttackPower {get; set;}
+
             public Unit(long x, long y, char type) : base(x, y)
             {
                 UnitType = type;
@@ -138,6 +188,9 @@ namespace day15
                 switch (type)
                 {
                     case ELF:
+                        HitPoints = 200;
+                        AttackPower = ElfAttackPower;
+                        break;
                     case GOBLIN:
                         HitPoints = 200;
                         AttackPower = 3;

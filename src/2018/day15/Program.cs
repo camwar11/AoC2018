@@ -25,7 +25,7 @@ namespace day15
                     lines = reader.GetLines().ToList();
                 }
 
-                bool print = test.Item3 == "test4.txt" || test.Item3 == "test5.txt";
+                bool print = false;//test.Item3 == "test4.txt" || test.Item3 == "test5.txt";
 
                 int turn, hp;
                 RunCombat(lines, print, out turn, out hp);
@@ -39,6 +39,16 @@ namespace day15
                     Console.WriteLine("Test Fails: {0}. Expect {1}*{2}, found {3}*{4}", test.Item3, test.Item1, test.Item2, turn, hp);
                 }
             }
+
+            List<string> realLines;
+            using (var reader = new InputReader("input.txt"))
+            {
+                realLines = reader.GetLines().ToList();
+            }
+
+            int realTurn, realHp;
+            RunCombat(realLines, false, out realTurn, out realHp);
+            Console.WriteLine("Part1: {0} full turns * {1} HP = {2}", realTurn, realHp, realTurn * realHp);
         }
 
         private static void RunCombat(List<string> lines, bool print, out int turn, out int hp)
@@ -69,14 +79,12 @@ namespace day15
                     }
                 }
 
-                var allPathLengths = board.GetAllShortestPathLengths();
-
                 bool noMoreEnemies = false;
                 foreach (var unit in units)
                 {
                     if (unit.IsDead) continue;
 
-                    if (unit.TakeTurn(board, allPathLengths))
+                    if (unit.TakeTurn(board))
                     {
                         noMoreEnemies = true;
                         break;
@@ -174,7 +182,7 @@ namespace day15
                 return this.UnitType == ELF ? GOBLIN : ELF;
             }
 
-            internal bool TakeTurn(Board board, long[,,,] allPathLengths)
+            internal bool TakeTurn(Board board)
             {
                 var enemies = board.GetUnitsInOrder(GetEnemy());
                 if (!enemies.Any()) return true;
@@ -184,9 +192,7 @@ namespace day15
                     return false;
                 }
 
-                //Unit closestSpace = FindNextClosestSpace(board, enemies);
-
-                Unit closestSpace = FindNextClosestSpaceDeux(board, enemies, allPathLengths);
+                Unit closestSpace = FindNextClosestSpace(board, enemies);
 
                 if (closestSpace == null)
                 {
@@ -235,45 +241,31 @@ namespace day15
 
             private Unit FindNextClosestSpace(Board board, IEnumerable<Unit> enemies)
             {
-                var sortedEnemies = enemies.Select(x => new
-                {
-                    Enemy = x,
-                    EmptySpaces = board.GetSquaresAdjacentToUnit(x, Unit.EMPTY).Select(y => new
-                    {
-                        Space = y,
-                        ManhattenDistance = this.ManhattenDistance(y)
-                    }).OrderBy(z => z.ManhattenDistance)
-
-                }).Where(x => x.EmptySpaces.Any()).OrderBy(x => x.EmptySpaces.First().ManhattenDistance);
-
                 long closestDistance = long.MaxValue;
-                IEnumerable<IEnumerable<Unit>> minPaths = null;
+                Unit closestPath = null;
 
-                foreach (var enemy in sortedEnemies)
+                foreach (var possibleSpace in board.GetSquaresAdjacentToUnit(this, Unit.EMPTY))
                 {
-                    if (enemy.EmptySpaces.First().ManhattenDistance > closestDistance) break;
-
-                    var paths = board.GetShortestPaths(this, enemy.EmptySpaces.Select(x => x.Space).ToArray());
-                    var minPath = paths.Select(x => new {
-                        Paths = x.Paths,
-                        Distance = x.Distance
-                    }).OrderBy(x => x.Distance).FirstOrDefault();
-
-                    // No path to this enemy
-                    if(minPath == null) continue;
-
-                    if (minPath.Distance < closestDistance)
+                    foreach (var enemy in enemies)
                     {
-                        minPaths = minPath.Paths;
-                        closestDistance = minPath.Distance;
+                        foreach (var spaceNextToEnemy in board.GetSquaresAdjacentToUnit(enemy, Unit.EMPTY))
+                        {
+                            var paths = board.GetShortestPaths(true, possibleSpace, spaceNextToEnemy);
+                            var minPath = paths.FirstOrDefault();
+
+                            // No path to this enemy
+                            if(minPath == null) continue;
+
+                            if (minPath.Distance < closestDistance)
+                            {
+                                closestPath = possibleSpace;
+                                closestDistance = minPath.Distance;
+                            }   
+                        }                                            
                     }
                 }
 
-                if(minPaths == null) return null;
-
-                // All of the first steps will just be a distance of 1, so grab the first
-                // one that in reading order.
-                return minPaths.Select(x => x.Take(2).Last()).OrderBy(x => x).FirstOrDefault();
+                return closestPath;
             }
         }
 

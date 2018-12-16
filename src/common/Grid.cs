@@ -83,9 +83,9 @@ namespace common
             return adjacents;
         }
 
-        public IEnumerable<ShortestPathResult> GetShortestPaths(T start, params T[] endingPoints)
+        public IEnumerable<ShortestPathResult> GetShortestPaths(bool onlyGetDistances, T start, params T[] endingPoints)
         {
-            return DijkstrasAlgorithm(start, endingPoints);
+            return DijkstrasAlgorithm(start, endingPoints, onlyGetDistances);
         }
 
         public long[,,,] GetAllShortestPathLengths()
@@ -173,7 +173,7 @@ namespace common
             }
         }
 
-        private List<ShortestPathResult> DijkstrasAlgorithm(T start, IEnumerable<T> ends)
+        private List<ShortestPathResult> DijkstrasAlgorithm(T start, IEnumerable<T> ends, bool justGetDistances)
         {
             PathInfo[,] pathInfos = new PathInfo[_width, _height];
             List<PathInfo> endsPaths = new List<PathInfo>(ends.Count());
@@ -246,11 +246,15 @@ namespace common
             {
                 if(!ending.Visited) continue;
 
-                PathInfo currentNode = ending;
-                List<Stack<T>> currentShortestPaths = new List<Stack<T>>();
+                List<Stack<T>> currentShortestPaths = null;
+                if(!justGetDistances)
+                {
+                    PathInfo currentNode = ending;
+                    currentShortestPaths = new List<Stack<T>>();
 
-                FollowPath(currentNode, currentShortestPaths);
-
+                    FollowPath(currentNode, currentShortestPaths);
+                }
+                
                 ShortestPathResult result = new ShortestPathResult(ending.Distance, currentShortestPaths,start, ending.Node);
 
                 shortestPaths.Add(result);

@@ -253,5 +253,50 @@
             "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart"
         }
+        ,
+        {
+            "name": "day18_18",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            // If you have changed target frameworks, make sure to update the program path.
+            "program": "${workspaceFolder}/src/2018/day18/bin/Debug/netcoreapp2.1/day18.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/2018/day18",
+            // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
+            "console": "internalConsole",
+            "stopAtEntry": false,
+            "internalConsoleOptions": "openOnSessionStart"
+        }
+        ,
+        {
+            "name": "day19_18",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            // If you have changed target frameworks, make sure to update the program path.
+            "program": "${workspaceFolder}/src/2018/day19/bin/Debug/netcoreapp2.1/day19.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/2018/day19",
+            // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
+            "console": "internalConsole",
+            "stopAtEntry": false,
+            "internalConsoleOptions": "openOnSessionStart"
+        }
+        ,
+        {
+            "name": "day20_18",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            // If you have changed target frameworks, make sure to update the program path.
+            "program": "${workspaceFolder}/src/2018/day20/bin/Debug/netcoreapp2.1/day20.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/2018/day20",
+            // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
+            "console": "internalConsole",
+            "stopAtEntry": false,
+            "internalConsoleOptions": "openOnSessionStart"
+        }
     ,]
 }

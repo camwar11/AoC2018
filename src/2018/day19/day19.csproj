@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\common\common.csproj" />
+    <ProjectReference Include="..\day16\day16.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

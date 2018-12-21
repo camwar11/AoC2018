@@ -93,7 +93,10 @@ namespace day16
             return line.Substring(startIdx, endIdx-startIdx).Split(", ").Select(x => int.Parse(x)).ToArray();
         }
 
-        private class CPU
+        
+    }
+
+    public class CPU
         {
             public enum OpCode
             {
@@ -218,10 +221,34 @@ namespace day16
                     _registers = initialRegisters;
                 }
                 _opCodeMap = new Dictionary<int, HashSet<OpCode>>();
-                // for (int i = 0; i < 16; i++)
-                // {
-                //     _opCodeMap[i] = new HashSet<OpCode>(Enum.GetValues(typeof(OpCode)).OfType<OpCode>());
-                // }
+            }
+
+            public class Instruction
+            {
+                public OpCode OpCode;
+                public int InputA;
+                public int InputB;
+                public int OutputC;
+            }
+
+            public int[] PerformInstructionSet(List<Instruction> instructions, int instructionPointerRegister)
+            {
+                int instructionPointer = 0;
+                while(instructionPointer < instructions.Count)
+                {
+                    var instruction = instructions[instructionPointer];
+                    PerformInstruction(instruction.OpCode, instruction.InputA, instruction.InputB, instruction.OutputC);
+                    instructionPointer = _registers[instructionPointerRegister];
+                    if(++instructionPointer == instructions.Count) break;
+                    _registers[instructionPointerRegister] = instructionPointer;
+                }
+                
+                return _registers;
+            }
+
+            public int[] PerformInstruction(Instruction instruction)
+            {
+                return PerformInstruction(instruction.OpCode, instruction.InputA, instruction.InputB, instruction.OutputC);
             }
 
             public int[] PerformInstruction(OpCode opCode, int inputA, int inputB, int outputC)
@@ -293,5 +320,4 @@ namespace day16
                 return matches;
             }
         }
-    }
 }

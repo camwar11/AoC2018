@@ -2,6 +2,8 @@
 using common;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
+using System.Text;
 
 namespace day17
 {
@@ -64,13 +66,16 @@ namespace day17
                 grid[node.X, node.Y] = node;
             }
 
-            Console.WriteLine("Part 1: " + RunSim(grid, 500, true));
+            long nonFlowingCount;
+
+            Console.WriteLine("Part 1: " + RunSim(grid, 500, true, out nonFlowingCount));
+            Console.WriteLine("Part 2: " + nonFlowingCount);
         }
 
-        private static long RunSim(Ground ground, int waterXCoord, bool print)
+        private static long RunSim(Ground ground, int waterXCoord, bool print, out long nonFlowingCount)
         {
             ground.AddWater(waterXCoord);
-            return ground.WaterCount(print);
+            return ground.WaterCount(print, out nonFlowingCount);
         }
 
         private class ScanNode : Point
@@ -102,9 +107,11 @@ namespace day17
             {
             }
 
-            internal long WaterCount(bool print)
+            internal long WaterCount(bool print, out long nonFlowingCount)
             {
                 long count = 0;
+                nonFlowingCount = 0;
+                StringBuilder builder = new StringBuilder();
                 for (long y= _minY; y < _height; y++)
                 {
                     for (long x = _minX; x < _width; x++)
@@ -113,12 +120,18 @@ namespace day17
                         if(node.GroundType == ScanNode.FLOWING_WATER || 
                            node.GroundType == ScanNode.WATER)
                         {
+                            if(node.GroundType == ScanNode.WATER) nonFlowingCount++;
+
                             count++;   
                         }
-                        if(print) Console.Write(node.GroundType);
+                        //if(print) Console.Write(node.GroundType);
+                        if(print) builder.Append(node.GroundType);
                     }   
-                    if(print) Console.WriteLine();
+                    //if(print) Console.WriteLine();
+                    if(print) builder.AppendLine();
                 }
+
+                if(print) File.WriteAllText("output.txt", builder.ToString());
 
                 return count;
             }
@@ -140,9 +153,13 @@ namespace day17
                 }
 
                 var nextSquare = this[x, y+1];
+                if(nextSquare.GroundType == ScanNode.FLOWING_WATER) return false;
                 if(!nextSquare.IsSolid)
                 {
-                    return DropWater(nextSquare.X, nextSquare.Y);
+                    if(!DropWater(nextSquare.X, nextSquare.Y))
+                    {
+                        return false;
+                    }
                 }
 
                 List<ScanNode> leftNodes = new List<ScanNode>();
@@ -157,7 +174,8 @@ namespace day17
                     {
                         node.GroundType = ScanNode.WATER;
                     }
-                    return DropWater(x, y-1);
+
+                    return true;
                 }
                 else if(wallLeft)
                 {

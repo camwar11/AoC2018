@@ -8,25 +8,28 @@ namespace common
     {
         private T[,] _board;
         protected long _width, _height;
+        protected long _minX, _minY;
 
         public delegate T EmptyGenerator(long x, long y);
 
         protected EmptyGenerator _emptyGenerator;
 
-        public Grid(long width, long height, EmptyGenerator emptyGen = null)
+        public Grid(long width, long height, EmptyGenerator emptyGen = null, long minX = 0, long minY = 0)
         {
-            _board = new T[width, height];
+            _board = new T[width-minX, height-minY];
             _width = width;
             _height = height;
+            _minX = minX;
+            _minY = minY;
 
             _emptyGenerator = emptyGen;
         }
 
         public void Print()
         {
-            for (long y = 0; y < _height; y++)
+            for (long y = _minY; y < _height; y++)
             {
-                for (long x = 0; x < _width; x++)
+                for (long x = _minX; x < _width; x++)
                 {
                     Console.Write(_board[x,y].ToString());
                 }
@@ -38,12 +41,18 @@ namespace common
         {
             get
             {
-                return _board[x, y];
+                var result = _board[x-_minX, y-_minY];
+                if(result == null)
+                {
+                    result = _emptyGenerator(x, y);
+                    _board[x-_minX, y-_minY] = result;
+                }
+                return result;
             }
             set 
             {
-                _board[value.X, value.Y] = _emptyGenerator(value.X, value.Y);
-                _board[x, y] = value;
+                _board[value.X-_minX, value.Y-_minY] = _emptyGenerator(value.X, value.Y);
+                _board[x-_minX, y-_minY] = value;
             }
         }
 

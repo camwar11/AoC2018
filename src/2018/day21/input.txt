@@ -1,32 +1,32 @@
 #ip 4
-seti 123 0 1
+seti 123 0 1        #START Test loop
 bani 1 456 1
 eqri 1 72 1
 addr 1 4 4
-seti 0 0 4
-seti 0 7 1
-bori 1 65536 2
-seti 8725355 6 1
-bani 2 255 5
-addr 1 5 1
-bani 1 16777215 1
-muli 1 65899 1
-bani 1 16777215 1
-gtir 256 2 5
-addr 5 4 4
-addi 4 1 4
-seti 27 8 4
-seti 0 0 5
-addi 5 1 3
-muli 3 256 3
-gtrr 3 2 3
-addr 3 4 4
-addi 4 1 4
-seti 25 1 4
-addi 5 1 5
-seti 17 9 4
-setr 5 1 2
-seti 7 6 4
-eqrr 1 0 5
-addr 5 4 4
-seti 5 7 4
+seti 0 0 4          #GOTO Start Test loop
+seti 0 7 1          #RealStart zero back out reg1
+bori 1 65536 2      #E set reg2 to OR of reg1 and 10000000000000000
+seti 8725355 6 1    Set reg1 to 100001010010001101101011
+bani 2 255 5        #D set reg5 to reg2 AND 11111111
+addr 1 5 1          Set reg1 to reg1 + reg5
+bani 1 16777215 1   Set reg1 to reg1 AND 111111111111111111111111
+muli 1 65899 1      Set reg1 to reg1 * 65899
+bani 1 16777215 1   Set reg1 to reg1 AND 111111111111111111111111
+gtir 256 2 5        if reg2 > 256 set reg5 to 1, else 0
+addr 5 4 4          jump up reg5
+addi 4 1 4          #GOTO A
+seti 27 8 4         #GOTO F
+seti 0 0 5          #A Set reg5 back to 0
+addi 5 1 3          #C Set reg3 to reg5 + 1
+muli 3 256 3        reg3 *= 256
+gtrr 3 2 3          Set reg3 to 1 if reg3 > reg2, else 0
+addr 3 4 4          #Jump up reg3
+addi 4 1 4          #GOTO B
+seti 25 1 4         #GOTO G
+addi 5 1 5          #B Set reg5 += 1
+seti 17 9 4         #GOTO C
+setr 5 1 2          #G Set reg2 to reg5
+seti 7 6 4          #GOTO D
+eqrr 1 0 5          #F set reg5 to 1 if reg0 == reg1
+addr 5 4 4          # END if reg5 != 0
+seti 5 7 4          #GOTO E

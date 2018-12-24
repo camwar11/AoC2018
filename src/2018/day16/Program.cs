@@ -231,13 +231,23 @@ namespace day16
                 public int OutputC;
             }
 
-            public int[] PerformInstructionSet(List<Instruction> instructions, int instructionPointerRegister)
+            public int[] PerformInstructionSet(List<Instruction> instructions, int instructionPointerRegister, out long cycles, long prevLowestCycles = long.MaxValue, bool print = false)
             {
                 int instructionPointer = 0;
-                while(instructionPointer < instructions.Count)
+                cycles = 0;
+                while(instructionPointer < instructions.Count && cycles < prevLowestCycles)
                 {
+                    cycles++;
                     var instruction = instructions[instructionPointer];
+                    string firstRegisters = print ? string.Join(", ", _registers) : null;
+                    
                     PerformInstruction(instruction.OpCode, instruction.InputA, instruction.InputB, instruction.OutputC);
+                    if(print)
+                    {
+                        Console.WriteLine("ip={0} [{1}] {2} {3} {4} {5} {6}", instructionPointer, firstRegisters, 
+                        instruction.OpCode, instruction.InputA, instruction.InputB, instruction.OutputC,
+                        string.Join(", ", _registers));
+                    }
                     instructionPointer = _registers[instructionPointerRegister];
                     if(++instructionPointer == instructions.Count) break;
                     _registers[instructionPointerRegister] = instructionPointer;

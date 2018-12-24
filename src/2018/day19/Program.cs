@@ -42,13 +42,14 @@ namespace day19
                 instructions.Add(instruction);
             }
 
-            var result = cpu.PerformInstructionSet(instructions, instructionPointerRegister);
+            long cycles;
+            var result = cpu.PerformInstructionSet(instructions, instructionPointerRegister, out cycles);
 
             Console.WriteLine("Part 1: " + result[0]);
 
             cpu = new CPU(new int[]{1,0,0,0,0,0});
             
-            result = cpu.PerformInstructionSet(instructions, instructionPointerRegister);
+            result = cpu.PerformInstructionSet(instructions, instructionPointerRegister, out cycles);
 
             // After letting this run for an hour, I watched it and realized it was trying
             // to do a sum of the factors of the big number, so I put it in Wolfram Alpha and got 27578880

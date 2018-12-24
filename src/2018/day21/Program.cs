@@ -16,7 +16,7 @@ namespace day21
                 lines = reader.GetLines().ToList();
             }
 
-            var cpu = new CPU(new int[6]);
+            var cpu = new CPU(new long[6]);
 
             int instructionPointerRegister = 0;
             bool first = true;
@@ -43,12 +43,12 @@ namespace day21
             }
 
             long cycles = long.MaxValue;
-            long smallestCycles = 1000000;
+            long smallestCycles = 10000000000;
             int bestRegisterValue = 0;
 
             for (int regZero = 1000000; regZero >= 0; regZero--)
             {
-                cpu = new CPU(new int[]{regZero,0,0,0,0,0}); 
+                cpu = new CPU(new long[]{regZero,0,0,0,0,0}); 
                 cpu.PerformInstructionSet(instructions, instructionPointerRegister, out cycles, smallestCycles, false);
                 if(cycles <= smallestCycles)
                 {
@@ -89,7 +89,10 @@ namespace day21
             reg1 = reg1 & 0b1111_1111_1111_1111_1111_1111;
             reg1 = reg1 * 65899;
             reg1 = reg1 & 0b1111_1111_1111_1111_1111_1111;
-            if(reg2 > 256)
+            // Biggest theoretical reg1 is 16711317
+            // but to keep reg2 < 0b1_0000_0000, reg2 and reg5 would have to start at 1111_1111
+            // so 
+            if(0b1_0000_0000 > reg2)
             {
                 reg5 = 1;
                 F();

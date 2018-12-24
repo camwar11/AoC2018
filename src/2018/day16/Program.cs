@@ -34,15 +34,15 @@ namespace day16
                 lines = reader.GetLines().ToList();
             }
 
-            Tuple<int,int> result = RunCPU(lines, true);
+            var result = RunCPU(lines, true);
             Console.WriteLine("Part 1 Result = {0}", result.Item1);
             Console.WriteLine("Part 2 Result = {0}", result.Item2);
         }
 
-        private static Tuple<int,int> RunCPU(List<string> lines, bool runPart2)
+        private static Tuple<int,long> RunCPU(List<string> lines, bool runPart2)
         {
             int linesLeftInSet = 3;
-            List<int[]> linesInSet = new List<int[]>();
+            List<long[]> linesInSet = new List<long[]>();
             var cpu = new CPU();
             int threshHold = 3;
             int part1Results = 0;
@@ -76,21 +76,21 @@ namespace day16
                 }
             }
 
-            int part2 = !runPart2 ? 0 : cpu.Part2(linesInSet);
+            long part2 = !runPart2 ? 0 : cpu.Part2(linesInSet);
 
-            return new Tuple<int, int>(part1Results, part2);
+            return new Tuple<int, long>(part1Results, part2);
         }
 
-        private static int[] ParseInstruction(string line)
+        private static long[] ParseInstruction(string line)
         {
-            return line.Split(' ').Select(x => int.Parse(x)).ToArray();
+            return line.Split(' ').Select(x => long.Parse(x)).ToArray();
         }
 
-        private static int[] ParseRegisters(string line)
+        private static long[] ParseRegisters(string line)
         {
             int startIdx = line.IndexOf('[') + 1;
             int endIdx = line.IndexOf(']', startIdx);
-            return line.Substring(startIdx, endIdx-startIdx).Split(", ").Select(x => int.Parse(x)).ToArray();
+            return line.Substring(startIdx, endIdx-startIdx).Split(", ").Select(x => long.Parse(x)).ToArray();
         }
 
         
@@ -118,14 +118,14 @@ namespace day16
                 eqrr
             }
 
-            private delegate int GetValue(int input, int[] registers);
+            private delegate long GetValue(long input, long[] registers);
 
-            private static GetValue GetImmediate = (int input, int[] registers) =>
+            private static GetValue GetImmediate = (long input, long[] registers) =>
             {
                 return input;
             };
 
-            private static GetValue GetRegister = (int input, int[] registers) =>
+            private static GetValue GetRegister = (long input, long[] registers) =>
             {
                 return registers[input];
             };
@@ -155,33 +155,33 @@ namespace day16
                 {OpCode.setr, RegisterRegister}
             };
 
-            private delegate int RunOp(int inputA, int inputB);
-            private static int Add(int inputA, int inputB)
+            private delegate long RunOp(long inputA, long inputB);
+            private static long Add(long inputA, long inputB)
             {
                 return inputA + inputB;
             }
-            private static int And(int inputA, int inputB)
+            private static long And(long inputA, long inputB)
             {
                 return inputA & inputB;
             }
-            private static int Or(int inputA, int inputB)
+            private static long Or(long inputA, long inputB)
             {
                 return inputA | inputB;
             }
-            private static int Assignment(int inputA, int inputB)
+            private static long Assignment(long inputA, long inputB)
             {
                 return inputA;
             }
-            private static int Multiply(int inputA, int inputB)
+            private static long Multiply(long inputA, long inputB)
             {
                 return inputA * inputB;
             }
-            private static int Equal(int inputA, int inputB)
+            private static long Equal(long inputA, long inputB)
             {
                 if(inputA == inputB) return 1;
                 return 0;
             }
-            private static int GreaterThan(int inputA, int inputB)
+            private static long GreaterThan(long inputA, long inputB)
             {
                 if(inputA > inputB) return 1;
                 return 0;
@@ -207,14 +207,14 @@ namespace day16
                 {OpCode.setr, Assignment}
             };
 
-            private int[] _registers;
+            private long[] _registers;
             private Dictionary<int, HashSet<OpCode>> _opCodeMap;
 
-            public CPU(int[] initialRegisters = null)
+            public CPU(long[] initialRegisters = null)
             {
                 if(initialRegisters == null)
                 {
-                    _registers = new int[4];
+                    _registers = new long[4];
                 }
                 else
                 {
@@ -226,19 +226,24 @@ namespace day16
             public class Instruction
             {
                 public OpCode OpCode;
-                public int InputA;
-                public int InputB;
-                public int OutputC;
+                public long InputA;
+                public long InputB;
+                public long OutputC;
             }
 
-            public int[] PerformInstructionSet(List<Instruction> instructions, int instructionPointerRegister, out long cycles, long prevLowestCycles = long.MaxValue, bool print = false)
+            private long minReg1 = long.MaxValue;
+            public long[] PerformInstructionSet(List<Instruction> instructions, int instructionPointerRegister, out long cycles, long prevLowestCycles = long.MaxValue, bool print = false)
             {
-                int instructionPointer = 0;
+                long instructionPointer = 0;
                 cycles = 0;
                 while(instructionPointer < instructions.Count && cycles < prevLowestCycles)
                 {
+                    if(instructionPointer == 28)
+                    {
+                        if(_registers[1] < minReg1) minReg1 = _registers[1];
+                    }
                     cycles++;
-                    var instruction = instructions[instructionPointer];
+                    var instruction = instructions[(int)instructionPointer];
                     string firstRegisters = print ? string.Join(", ", _registers) : null;
                     
                     PerformInstruction(instruction.OpCode, instruction.InputA, instruction.InputB, instruction.OutputC);
@@ -256,46 +261,46 @@ namespace day16
                 return _registers;
             }
 
-            public int[] PerformInstruction(Instruction instruction)
+            public long[] PerformInstruction(Instruction instruction)
             {
                 return PerformInstruction(instruction.OpCode, instruction.InputA, instruction.InputB, instruction.OutputC);
             }
 
-            public int[] PerformInstruction(OpCode opCode, int inputA, int inputB, int outputC)
+            public long[] PerformInstruction(OpCode opCode, long inputA, long inputB, long outputC)
             {
                 var getter = _opcodeValueGetters[opCode];
-                int value = _opcodePerformOp[opCode](getter[0](inputA, _registers), getter[1](inputB, _registers));
+                long value = _opcodePerformOp[opCode](getter[0](inputA, _registers), getter[1](inputB, _registers));
 
                 _registers[outputC] = value;
 
                 return _registers;
             }
 
-            private void PerformInstruction(int opCodeId, int inputA, int inputB, int outputC)
+            private void PerformInstruction(int opCodeId, long inputA, long inputB, long outputC)
             {
                 OpCode opCode = _opCodeMap[opCodeId].First();
                 var getter = _opcodeValueGetters[opCode];
-                int value = _opcodePerformOp[opCode](getter[0](inputA, _registers), getter[1](inputB, _registers));
+                long value = _opcodePerformOp[opCode](getter[0](inputA, _registers), getter[1](inputB, _registers));
 
                 _registers[outputC] = value;
             }
 
-            public int Part2(List<int[]> list)
+            public long Part2(List<long[]> list)
             {
                 _registers = list[0].ToArray();
 
                 foreach (var instruction in list)
                 {
-                    PerformInstruction(instruction[0], instruction[1], instruction[2], instruction[3]);
+                    PerformInstruction((int)instruction[0], instruction[1], instruction[2], instruction[3]);
                 }
 
                 return _registers[0];
             }
 
-            public int Part1(List<int[]> list)
+            public long Part1(List<long[]> list)
             {
                 int matches = 0;
-                int opCodeNumber = list[1][0];
+                int opCodeNumber = (int)list[1][0];
                 
                 HashSet<OpCode> thisRunPossibleOpCodes = new HashSet<OpCode>();
                 foreach (var opCode in _opcodePerformOp.Keys)

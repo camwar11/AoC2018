@@ -16,7 +16,7 @@ namespace day19
                 lines = reader.GetLines().ToList();
             }
 
-            var cpu = new CPU(new int[6]);
+            var cpu = new CPU(new long[6]);
 
             int instructionPointerRegister = 0;
             bool first = true;
@@ -47,7 +47,7 @@ namespace day19
 
             Console.WriteLine("Part 1: " + result[0]);
 
-            cpu = new CPU(new int[]{1,0,0,0,0,0});
+            cpu = new CPU(new long[]{1,0,0,0,0,0});
             
             result = cpu.PerformInstructionSet(instructions, instructionPointerRegister, out cycles);
 

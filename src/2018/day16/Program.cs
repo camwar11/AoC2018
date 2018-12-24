@@ -231,7 +231,9 @@ namespace day16
                 public long OutputC;
             }
 
-            private long minReg1 = long.MaxValue;
+            SortedDictionary<long, long> _reg1AndMinCycles = new SortedDictionary<long, long>();
+            SortedList<long, long> _maxCyclesAndReg1 = new SortedList<long, long>();
+
             public long[] PerformInstructionSet(List<Instruction> instructions, int instructionPointerRegister, out long cycles, long prevLowestCycles = long.MaxValue, bool print = false)
             {
                 long instructionPointer = 0;
@@ -240,7 +242,11 @@ namespace day16
                 {
                     if(instructionPointer == 28)
                     {
-                        if(_registers[1] < minReg1) minReg1 = _registers[1];
+                        if(!_reg1AndMinCycles.ContainsKey(_registers[1]))
+                        {
+                            _reg1AndMinCycles[_registers[1]] = cycles; 
+                            _maxCyclesAndReg1[cycles] = _registers[1];
+                        }
                     }
                     cycles++;
                     var instruction = instructions[(int)instructionPointer];

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace common
 {
@@ -25,16 +26,44 @@ namespace common
             _emptyGenerator = emptyGen;
         }
 
-        public void Print()
+        public string Print(bool toConsole = true)
         {
+            StringBuilder builder = null;
+            if(!toConsole)
+            {
+                builder = new StringBuilder();
+            }
+
             for (long y = _minY; y < _height; y++)
             {
                 for (long x = _minX; x < _width; x++)
                 {
-                    Console.Write(_board[x,y].ToString());
+                    var element = _board[x,y].ToString();
+                    if(toConsole)
+                    {
+                        Console.Write(element);
+                    }
+                    else
+                    {
+                        builder.Append(element);
+                    }
                 }
-                Console.Write("\n");
+                if(toConsole)
+                {
+                    Console.WriteLine();
+                }
+                else
+                {
+                    builder.AppendLine();
+                }
             }
+
+            if(toConsole)
+            {
+                return string.Empty;
+            }
+
+            return builder.ToString();
         }
 
         public virtual T this[long x, long y]
@@ -51,45 +80,50 @@ namespace common
             }
             set 
             {
-                _board[value.X-_minX, value.Y-_minY] = _emptyGenerator(value.X, value.Y);
+                _board[value.X-_minX, value.Y-_minY] = _emptyGenerator == null ? null : _emptyGenerator(value.X, value.Y);
                 _board[x-_minX, y-_minY] = value;
             }
         }
 
-        public IEnumerable<T> GetAdjacentSquares(T point)
+        public IEnumerable<T> GetAdjacentSquares(T point, bool addDiags = false)
         {
-            return GetAdjacentSquares(_board, point.X, point.Y);
+            return GetAdjacentSquares(_board, point.X, point.Y, addDiags);
         }
         
-        private static IEnumerable<V> GetAdjacentSquares<V>(V[,] grid, long x, long y)
+        private static IEnumerable<V> GetAdjacentSquares<V>(V[,] grid, long x, long y, bool addDiags = false)
         {
             List<V> adjacents = new List<V>(4);
-            
-            if(y != 0)
-            {
-                var up = grid[x, y-1];
-                adjacents.Add(up);
-            }            
 
-            if(x != 0)
-            {
-                var left = grid[x - 1, y];
-                adjacents.Add(left);
-            }
-            
-            if(grid.GetLength(0) > x + 1)
-            {
-                var right = grid[x + 1, y];
-                adjacents.Add(right);
-            }
-            
-            if(grid.GetLength(1) > y + 1)
-            {
-                var down = grid[x, y + 1];
-                adjacents.Add(down);
-            }
+            long startX = x != 0 ? x - 1 : 0;
+            long endX = grid.GetLength(0) > x + 1 ? x + 1 : x;
+            long startY = y != 0 ? y - 1 : 0;
+            long endY = grid.GetLength(1) > y + 1 ? y + 1 : y;
 
+            for (long yIdx = startY; yIdx <= endY; yIdx++)
+            {
+                for (long xIdx = startX; xIdx <= endX; xIdx++)
+                {
+                    long distance = Point.ManhattenDistance(x, xIdx, y, yIdx);
+                    if(distance == 0 || (!addDiags && distance>1))
+                    {
+                        continue;
+                    }
+                    adjacents.Add(grid[xIdx, yIdx]);
+                }   
+            }
+            
             return adjacents;
+        }
+
+        public IEnumerable<T> Points()
+        {
+            for (long y = _minY; y < _height; y++)
+            {
+                for (long x = _minX; x < _width; x++)
+                {
+                    yield return _board[x,y];
+                }   
+            }
         }
 
         public IEnumerable<ShortestPathResult> GetShortestPaths(bool onlyGetDistances, T start, params T[] endingPoints)
